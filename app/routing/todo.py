@@ -5,13 +5,17 @@ from sqlalchemy.orm import Session
 from app.database.db import get_db
 from app.database.schema.todo_schema import TodoSchema
 from sqlalchemy import select
+from app.dependencies import authenicate_user
+from app.models.auth import AuthUser
 
-
-router = APIRouter(prefix="/todos")
+router = APIRouter(prefix="/todos", dependencies=[Depends(authenicate_user)])
 
 
 @router.get("/")
-def index(db: Annotated[Session, Depends(get_db)]):
+def index(
+    db: Annotated[Session, Depends(get_db)],
+    authUser: Annotated[AuthUser, Depends(authenicate_user)],
+):
     todos = db.query(TodoSchema).all()
     return {"message": "todos", "items": todos}
 
