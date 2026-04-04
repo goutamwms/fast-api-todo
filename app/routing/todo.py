@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
 from app.models.todo import CreateTodo
 from typing import Annotated
 from sqlalchemy.orm import Session
@@ -7,6 +7,9 @@ from app.database.schema.todo_schema import TodoSchema
 from sqlalchemy import select
 from app.dependencies import authenicate_user
 from app.models.auth import AuthUser
+import os
+import shutil
+from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/todos", dependencies=[Depends(authenicate_user)])
 
@@ -64,3 +67,29 @@ def delete(id: int, db: Annotated[Session, Depends(get_db)]):
     db.delete(todo)
     db.commit()
     return {"message": "Todo deleted"}
+
+
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+@router.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    try:
+        # Validate file size (example: max 5 MB)
+        contents = await file.read()
+        if len(contents) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="File too large (max 5 MB).")
+
+        # Reset file pointer after reading
+        await file.seek(0)
+
+        # Save file to disk
+        file_path = os.path.join(UPLOAD_DIR, file.filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        return JSONResponse(content={"filename": file.filename, "status": "uploaded"})
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

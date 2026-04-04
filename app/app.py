@@ -5,6 +5,11 @@
 # pip freeze > ./requirements.txt
 # pip install 'pwdlib[argon2]'
 # pip install pyjwt
+# pip install psycopg[binary]
+# pip install 'pydantic[email]'
+# pip install shutils
+# pip install -r requirements.txt
+# pip install python-multipart
 
 
 from fastapi import FastAPI, Depends
