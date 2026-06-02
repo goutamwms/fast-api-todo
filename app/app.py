@@ -1,19 +1,5 @@
-# fastapi run main.py
-# uvicorn main:app --reload reload only in dev not prod
-# alembic revision --autogenerate -m "message"
-# alembic upgrade head
-# pip freeze > ./requirements.txt
-# pip install 'pwdlib[argon2]'
-# pip install pyjwt
-# pip install psycopg[binary]
-# pip install 'pydantic[email]'
-# pip install shutils
-# pip install -r requirements.txt
-# pip install python-multipart
-
-
 from fastapi import FastAPI, Depends
-from app.routing import todo, auth
+from app.routing import todo, auth, demo
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
@@ -29,6 +15,7 @@ load_dotenv()
 
 app.include_router(todo.router)
 app.include_router(auth.router)
+app.include_router(demo.router)
 
 
 @app.exception_handler(RequestValidationError)
