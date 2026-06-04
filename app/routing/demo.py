@@ -190,3 +190,35 @@ def search_skills(
         "offset": offset,
         "limit": limit,
     }
+
+
+@router.get("/read-csv")
+def read_csv():
+    """
+    Reads two CSV files (csv/1.csv and csv/2.csv) and returns:
+    - result1: first row of csv/1.csv
+    - result2: first row of csv/2.csv
+    - has_difference: whether the first rows differ
+    - difference_in_1_2: columns in csv/1.csv but not in csv/2.csv
+    - difference_in_2_1: columns in csv/2.csv but not in csv/1.csv
+
+    Expected output:
+    {
+        "result1": [{"Name": "Alice", "ID": 101, "Age": 25, "Score": 88.5, "State": "NY"}],
+        "result2": [{"Name": "Alice", "Age": 25, "Score": 88.5}],
+        "has_difference": true,
+        "difference_in_1_2": ["ID", "State"],
+        "difference_in_2_1": []
+    }
+    """
+    df1 = pd.read_csv("csv/1.csv")
+    df2 = pd.read_csv("csv/2.csv")
+
+    return {
+        "result1": df1.head(1).to_dict(orient="records"),
+        "result2": df2.head(1).to_dict(orient="records"),
+        "has_difference": df1.head(1).to_dict(orient="records")
+        != df2.head(1).to_dict(orient="records"),
+        "difference_in_1_2": df1.columns.difference(df2.columns).tolist(),
+        "difference_in_2_1": df2.columns.difference(df1.columns).tolist(),
+    }
